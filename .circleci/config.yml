@@ -1,0 +1,43 @@
+version: 2.1
+jobs:
+  basic-setup:
+    working_directory: ~/repo
+    docker:
+      - image: golang:1.17.5-buster
+      - image: redis:6.2.6-alpine
+    steps:
+      - checkout
+      - restore_cache:
+          keys:
+            - go-mod-v4-{{ checksum "go.sum" }}
+      - run:
+          name: Download project modules
+          command: go mod download
+      - save_cache:
+          key: go-mod-v4-{{ checksum "go.sum" }}
+          paths:
+            - "/go/pkg/mod"
+      - run:
+          name: Try build.
+          command: go build .
+      - run:
+          name: Waiting for redis to be ready
+          command: |
+            sleep 10
+            echo done && exit 0
+      - run:
+          name: Install Redis Tools
+          command: |
+            apt-get update && apt install -y redis-tools
+            echo -e "mset a b c d e f g h i j k l\n expire a 1800\n expire e 60000\n expire c 100000\nhset k1 f1 v1\n lpush l1 v1\n zadd z3 10 v1\nsadd s2 v1" | redis-cli
+      - run:
+          name: Run tests
+          command: |
+            go build .
+            go test ./...  -race -coverprofile=coverage.txt -covermode=atomic
+            bash <(curl -s https://codecov.io/bash)
+
+workflows:
+  build_test:
+    jobs:
+      - basic-setup
