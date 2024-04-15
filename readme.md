@@ -4,6 +4,11 @@ Production ready simple sharding tool for mybatis.
 
 生产可用的简单的基于mybatis的分库分表工具， 目前已经应用于生产环境。
 
+## 欢迎提交PR
+
+Plus: 有没有人可以帮忙把包传到公开的maven仓库的， 可以联系我 [邮件](mailto://winjeg@qq.com) 
+
+
 为啥要使用他？
 
 - 支持不同种的数据源，只要实现了 标准的jdbc 和datasource相关接口都可以使用
